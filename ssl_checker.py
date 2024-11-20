@@ -4,12 +4,14 @@ from datetime import datetime
 import requests
 import os
 import sys
+import time
 
 # Get environment variables
 NTFY_SERVER = os.getenv("NTFY_SERVER", "https://ntfy.sh")
 NTFY_TOPIC = os.getenv("NTFY_TOPIC", "ssl-notifications")
 WARNING_DAYS = int(os.getenv("WARNING_DAYS", 7))
 WEBSITES = os.getenv("WEBSITES", "").split(',')
+CHECK_INTERVAL = int(os.getenv("CHECK_INTERVAL", 3600))  # Default: 1 hour
 
 def check_ssl_certificate(domain, warning_days=7):
     try:
@@ -49,18 +51,20 @@ def log_error(message):
     print(f"[ERROR] {message}", file=sys.stderr)
 
 if __name__ == "__main__":
-    errors = []
-    for website in WEBSITES:
-        if website.strip():
-            result = check_ssl_certificate(website.strip(), WARNING_DAYS)
-            if result:
-                print(result)
-            else:
-                errors.append(website)
+    while True:
+        print(f"Starting SSL checks for {len(WEBSITES)} website(s)...")
+        errors = []
+        for website in WEBSITES:
+            if website.strip():
+                result = check_ssl_certificate(website.strip(), WARNING_DAYS)
+                if result:
+                    print(result)
+                else:
+                    errors.append(website)
 
-    if errors:
-        print(f"Completed with errors for: {', '.join(errors)}", file=sys.stderr)
+        if errors:
+            print(f"Completed with errors for: {', '.join(errors)}", file=sys.stderr)
 
-    # Exit with non-zero code if there are errors
-    if errors:
-        sys.exit(1)
+        # Sleep before next check
+        print(f"Sleeping for {CHECK_INTERVAL} seconds...")
+        time.sleep(CHECK_INTERVAL)
