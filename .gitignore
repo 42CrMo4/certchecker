@@ -1,0 +1,45 @@
+# OS-Specific Files
+
+## macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+.DS_Store?
+
+## Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+## Linux
+*~
+
+# Python
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.env
+.env.*
+venv/
+.venv/
+
+## Visual Studio Code
+.vscode/
+.history/
+
+# Docker
+*.env
+.env.*
+.env.local
+.env.development
+.env.test
+.env.production
+docker-compose.override.yml
+
