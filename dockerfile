@@ -17,5 +17,5 @@ ENV NTFY_SERVER=https://ntfy.sh \
     WEBSITES="example.com,anotherdomain.com"
 
 # Run the script
-CMD ["python", "ssl_checker.py"]
+CMD ["python", "-u", "ssl_checker.py"]
 

@@ -5,6 +5,14 @@ import requests
 import os
 import sys
 import time
+import logging
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    handlers=[logging.StreamHandler(sys.stdout)]
+)
 
 # Get environment variables
 NTFY_SERVER = os.getenv("NTFY_SERVER", "https://ntfy.sh")
@@ -27,13 +35,13 @@ def check_ssl_certificate(domain, warning_days=7):
                     send_notification(message)
                 return f"{domain}: {days_left} days left"
     except socket.gaierror:
-        log_error(f"Could not resolve domain: {domain}")
+        logging.error(f"Could not resolve domain: {domain}")
     except ssl.SSLError as e:
-        log_error(f"SSL error for {domain}: {e}")
+        logging.error(f"SSL error for {domain}: {e}")
     except socket.timeout:
-        log_error(f"Connection to {domain} timed out")
+        logging.error(f"Connection to {domain} timed out")
     except Exception as e:
-        log_error(f"Error checking {domain}: {e}")
+        logging.error(f"Error checking {domain}: {e}")
     return None
 
 def send_notification(message):
@@ -43,28 +51,24 @@ def send_notification(message):
             data=message.encode('utf-8'),
             headers={"Title": "SSL Certificate Alert"}
         )
+        logging.info(f"Notification sent: {message}")
     except requests.RequestException as e:
-        log_error(f"Failed to send notification: {e}")
-
-def log_error(message):
-    """Log errors and print them to standard output."""
-    print(f"[ERROR] {message}", file=sys.stderr)
+        logging.error(f"Failed to send notification: {e}")
 
 if __name__ == "__main__":
     while True:
-        print(f"Starting SSL checks for {len(WEBSITES)} website(s)...")
+        logging.info(f"Starting SSL checks for {len(WEBSITES)} website(s)...")
         errors = []
         for website in WEBSITES:
             if website.strip():
                 result = check_ssl_certificate(website.strip(), WARNING_DAYS)
                 if result:
-                    print(result)
+                    logging.info(result)
                 else:
                     errors.append(website)
 
         if errors:
-            print(f"Completed with errors for: {', '.join(errors)}", file=sys.stderr)
+            logging.error(f"Completed with errors for: {', '.join(errors)}")
 
-        # Sleep before next check
-        print(f"Sleeping for {CHECK_INTERVAL} seconds...")
+        logging.info(f"Sleeping for {CHECK_INTERVAL} seconds...")
         time.sleep(CHECK_INTERVAL)
