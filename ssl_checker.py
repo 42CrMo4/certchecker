@@ -5,6 +5,7 @@ import requests
 import os
 import sys
 import time
+import signal
 import logging
 
 # Configure logging
@@ -20,6 +21,15 @@ NTFY_TOPIC = os.getenv("NTFY_TOPIC", "ssl-notifications")
 WARNING_DAYS = int(os.getenv("WARNING_DAYS", 7))
 WEBSITES = os.getenv("WEBSITES", "").split(',')
 CHECK_INTERVAL = int(os.getenv("CHECK_INTERVAL", 3600))  # Default: 1 hour
+
+# Global flag for graceful shutdown
+running = True
+
+def signal_handler(signum, frame):
+    """Handle termination signals to exit gracefully."""
+    global running
+    logging.info("Termination signal received. Exiting...")
+    running = False
 
 def check_ssl_certificate(domain, warning_days=7):
     try:
@@ -56,7 +66,11 @@ def send_notification(message):
         logging.error(f"Failed to send notification: {e}")
 
 if __name__ == "__main__":
-    while True:
+    # Register signal handlers for SIGINT and SIGTERM
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
+
+    while running:
         logging.info(f"Starting SSL checks for {len(WEBSITES)} website(s)...")
         errors = []
         for website in WEBSITES:
@@ -71,4 +85,7 @@ if __name__ == "__main__":
             logging.error(f"Completed with errors for: {', '.join(errors)}")
 
         logging.info(f"Sleeping for {CHECK_INTERVAL} seconds...")
-        time.sleep(CHECK_INTERVAL)
+        for _ in range(CHECK_INTERVAL):
+            if not running:  # Exit the sleep early if a termination signal is received
+                break
+            time.sleep(1)
