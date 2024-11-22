@@ -1,6 +1,6 @@
 import socket
 import ssl
-from datetime import datetime
+from datetime import datetime, timezone
 import requests
 import os
 import sys
@@ -27,8 +27,8 @@ def check_ssl_certificate(domain, warning_days=7):
         with socket.create_connection((domain, 443), timeout=10) as sock:
             with context.wrap_socket(sock, server_hostname=domain) as ssock:
                 cert = ssock.getpeercert()
-                expiry_date = datetime.strptime(cert['notAfter'], "%b %d %H:%M:%S %Y GMT")
-                days_left = (expiry_date - datetime.utcnow()).days
+                expiry_date = datetime.strptime(cert['notAfter'], "%b %d %H:%M:%S %Y GMT").replace(tzinfo=timezone.utc)
+                days_left = (expiry_date - datetime.now(timezone.utc)).days
 
                 if days_left <= warning_days:
                     message = f"SSL certificate for {domain} expires in {days_left} days!"
