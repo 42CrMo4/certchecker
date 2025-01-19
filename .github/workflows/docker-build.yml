@@ -2,6 +2,8 @@ name: Build and Push to GitHub Container Registry
 
 on:
   push:
+    branches:
+      - 'main'
     tags:
       - 'v*'  # Match tags starting with v
 
