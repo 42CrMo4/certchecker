@@ -2,6 +2,8 @@ name: Build and Push to GitHub Container Registry
 
 on:
   push:
+    tags:
+      - 'v*'  # Match tags starting with v
 
 jobs:
   build-and-push:
