@@ -18,4 +18,3 @@ ENV NTFY_SERVER=https://ntfy.sh \
 
 # Run the script
 CMD ["python", "-u", "ssl_checker.py"]
-
