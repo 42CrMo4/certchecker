@@ -14,7 +14,7 @@ RUN pip install requests
 ENV NTFY_SERVER=https://ntfy.sh \
     NTFY_TOPIC=ssl-notifications \
     WARNING_DAYS=7 \
-    WEBSITES="example.com,anotherdomain.com"
+    WEBSITES="google.com,wikipedia.org"
 
 # Run the script
 CMD ["python", "-u", "ssl_checker.py"]
